@@ -21,10 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-const formSchema = z.object({
-  name: z.string().min(1, { message: "Store Name is required" }),
-});
+import { AddStoreSchema } from "@/schemas";
 
 const StoreModal = () => {
   const storeModal = useStoreModal();
@@ -32,14 +29,14 @@ const StoreModal = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof AddStoreSchema>>({
+    resolver: zodResolver(AddStoreSchema),
     defaultValues: {
       name: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof AddStoreSchema>) => {
     try {
       setLoading(true);
       const response = await axios.post("/api/stores", values);
