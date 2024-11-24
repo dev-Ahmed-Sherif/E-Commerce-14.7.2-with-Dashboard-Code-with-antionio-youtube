@@ -9,7 +9,7 @@ export async function POST(req: Request) {
 
     const { name } = body;
 
-    if (!userId) return new NextResponse("Unauthorized", { status: 401 });
+    if (!userId) return new NextResponse("Unauthorized User", { status: 401 });
 
     if (!name) return new NextResponse("Name is required", { status: 400 });
 
