@@ -24,7 +24,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import AlertModal from "../modals/AlertModal";
+import AlertModal from "@/components/modals/alert-modal";
+import ApiAlert from "@/components/ui/api-alert";
+
+import useOrigin from "@/hooks/use-origin";
 
 type SettingsFormProps = {
   initialData: Store;
@@ -40,6 +43,7 @@ const SettingsForm = ({ initialData }: SettingsFormProps) => {
   const { toast } = useToast();
   const params = useParams();
   const router = useRouter();
+  const origin = useOrigin();
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(AddStoreSchema),
@@ -65,13 +69,33 @@ const SettingsForm = ({ initialData }: SettingsFormProps) => {
     }
   };
 
+  const onDelete = async () => {
+    try {
+      setLoading(true);
+      await axios.delete(`/api/stores/${params.storeId}`);
+      router.refresh();
+      router.push("/");
+      toast({
+        description: "👍👍 Store deleted successfully",
+      });
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        description: "Make sure removed all products and categories first!",
+      });
+    } finally {
+      setLoading(false);
+      setOpen(false);
+    }
+  };
+
   return (
     <>
       <AlertModal
         isOpen={open}
         loading={loading}
         onClose={() => setOpen(false)}
-        onConfirm={() => {}}
+        onConfirm={onDelete}
       />
       <div className="flex items-center justify-between">
         <Heading title="Settings" description="Manage store preferences" />
@@ -118,6 +142,12 @@ const SettingsForm = ({ initialData }: SettingsFormProps) => {
           </Button>
         </form>
       </Form>
+      <Separator />
+      <ApiAlert
+        title="NEXT_PUBLIC_API_URL"
+        description={`${origin}/api/${params.storeId}`}
+        variant="public"
+      />
     </>
   );
 };

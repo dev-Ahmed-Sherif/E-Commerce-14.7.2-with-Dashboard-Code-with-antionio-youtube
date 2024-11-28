@@ -4,8 +4,8 @@ import { auth } from "@clerk/nextjs/server";
 
 import prismadb from "@/lib/prismadb";
 
-import StoreSwitcher from "@/components/StoreSwitcher";
-import MainNav from "@/components/Layout/MainNav";
+import StoreSwitcher from "@/components/store-switcher";
+import MainNav from "@/components/layout/main-nav";
 
 const Navbar = async () => {
   //   const { isSignedIn, user } = useUser();
