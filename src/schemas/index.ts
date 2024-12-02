@@ -23,3 +23,21 @@ export const AddCategorySchema = z.object({
     message: "Billboard Id is required",
   }),
 });
+
+export const sizeSchema = z.object({
+  name: z.string().min(1, {
+    message: "Name is required",
+  }),
+  value: z.string().min(1, {
+    message: "Size Value Id is required",
+  }),
+});
+
+export const colorSchema = z.object({
+  name: z.string().min(1, {
+    message: "Name is required",
+  }),
+  value: z.string().min(4).regex(/^#/, {
+    message: "String must be a valid hex code",
+  }),
+});

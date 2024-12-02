@@ -87,7 +87,11 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
         await axios.post(`/api/${params.storeId}/billboards`, data);
       }
       router.refresh();
-      router.push(`/${params.storeId}/billboards`);
+
+      setTimeout(() => {
+        router.push(`/${params.storeId}/billboards`);
+      },1000)
+
       toast({
         description: `🎉 ${toastMessage}`,
       });
