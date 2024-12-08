@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
 
-import { BillboardColumn } from "@/components/billboards/columns";
+import { ProductColumn } from "@/components/products/columns";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import AlertModal from "@/components/modals/alert-modal";
 
 type CellActionProps = {
-  data: BillboardColumn;
+  data: ProductColumn;
 };
 
 const CellAction = ({ data }: CellActionProps) => {
@@ -33,59 +33,27 @@ const CellAction = ({ data }: CellActionProps) => {
     navigator.clipboard.writeText(id);
     toast({
       title: "Copied!",
-      description: "Billboard Id copied to your clipboard.",
+      description: "Product Id copied to your clipboard.",
     });
   };
 
   const onDelete = async () => {
     try {
       setLoading(true);
-      // Get the Billboard to delete its Image first from uploadthing
-      const billboard = await axios.get(
-        `/api/${params.storeId}/billboards/${params.billboardId}`
-      );
-      console.log(billboard);
-      const imageUrl = billboard.data.imageUrl;
-      HandleImageDelete(imageUrl);
-      await axios.delete(`/api/${params.storeId}/billboards/${data.id}`);
+      await axios.delete(`/api/${params.storeId}/products/${data.id}`);
       router.refresh();
       toast({
-        description: "👍👍 Billboard deleted successfully",
+        description: "👍👍 Product deleted successfully",
       });
     } catch (err) {
       toast({
         variant: "destructive",
-        description:
-          "Make sure removed all categories using this billboard first!",
+        description: "Something went wrong",
       });
     } finally {
       setLoading(false);
       setOpen(false);
     }
-  };
-
-  const HandleImageDelete = (image: string) => {
-    // Delete the image from your server or cloud storage
-    const imageKey = image.substring(image.lastIndexOf("/") + 1);
-
-    axios
-      .post("/api/uploadthing/delete", { imageKey })
-      .then((response) => {
-        if (response.data.success) {
-          toast({
-            description: "🎉 Image deleted successfully",
-          });
-        }
-      })
-      .catch(() => {
-        toast({
-          variant: "destructive",
-          description: "Something went wrong",
-        });
-      })
-      .finally(() => {
-        // After deleting, set the image state to undefined and set the imageIsDeleting to false
-      });
   };
 
   return (
@@ -111,7 +79,7 @@ const CellAction = ({ data }: CellActionProps) => {
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/${params.storeId}/billboards/${data.id}`)
+              router.push(`/${params.storeId}/products/${data.id}`)
             }
           >
             <Edit className="mr-2 h-4 w-4" />

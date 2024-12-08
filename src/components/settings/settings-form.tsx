@@ -12,7 +12,7 @@ import { Trash } from "lucide-react";
 
 import { AddStoreSchema } from "@/schemas";
 
-import Heading from "@/components/ui/Heading";
+import Heading from "@/components/ui/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {

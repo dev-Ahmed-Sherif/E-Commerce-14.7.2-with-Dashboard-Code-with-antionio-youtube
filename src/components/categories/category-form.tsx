@@ -13,7 +13,7 @@ import Image from "next/image";
 import { UploadButton } from "@/utils/uploadthing";
 import { AddCategorySchema } from "@/schemas";
 
-import Heading from "@/components/ui/Heading";
+import Heading from "@/components/ui/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -80,10 +80,10 @@ const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => {
         await axios.post(`/api/${params.storeId}/categories`, data);
       }
       router.refresh();
-      
+
       setTimeout(() => {
         router.push(`/${params.storeId}/categories`);
-      },1000)
+      }, 1000);
 
       toast({
         description: `🎉 ${toastMessage}`,

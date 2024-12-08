@@ -9,10 +9,10 @@ import { Separator } from "@/components/ui/separator";
 import { DataTable } from "@/components/ui/data-table";
 import ApiList from "@/components/ui/api-list";
 
-import { BillboardColumn, columns } from "@/components/billboards/columns";
+import { ProductColumn, columns } from "@/components/products/columns";
 
 type ClientProps = {
-  data: BillboardColumn[];
+  data: ProductColumn[];
 };
 
 const Client = ({ data }: ClientProps) => {
@@ -23,12 +23,12 @@ const Client = ({ data }: ClientProps) => {
     <>
       <div className="flex items-center justify-between">
         <Heading
-          title={`Billboards (${data.length})`}
-          description="Manage Billboards for your store"
+          title={`Products (${data.length})`}
+          description="Manage Products for your store"
         />
         <Button
           onClick={() => {
-            router.push(`/${params.storeId}/billboards/new`);
+            router.push(`/${params.storeId}/products/new`);
           }}
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -36,10 +36,10 @@ const Client = ({ data }: ClientProps) => {
         </Button>
       </div>
       <Separator />
-      <DataTable searchKey="label" columns={columns} data={data} />
-      <Heading title="API" description="API calls for Billboards" />
+      <DataTable searchKey="name" columns={columns} data={data} />
+      <Heading title="API" description="API calls for Products" />
       <Separator />
-      <ApiList entityName="billboards" entityIdName="billboardId" />
+      <ApiList entityName="products" entityIdName="productId" />
     </>
   );
 };

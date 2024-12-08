@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
-import { Billboard, Store } from "@prisma/client";
+import { Billboard } from "@prisma/client";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,7 +13,7 @@ import Image from "next/image";
 import { UploadButton } from "@/utils/uploadthing";
 import { AddBillboardSchema } from "@/schemas";
 
-import Heading from "@/components/ui/Heading";
+import Heading from "@/components/ui/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -50,6 +50,8 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
   const [imageIsDeleting, setImageIsDeleting] = useState<boolean>(false);
   const [image, setImage] = useState<string | undefined>(initialData?.imageUrl);
 
+  // console.log(image);
+
   const title = initialData ? "Edit Billboard" : "Create Billboard";
   const description = initialData ? "Edit a Billboard" : "Add New Billboard";
   const toastMessage = initialData ? "Billboard Updated" : "Create Billboard";
@@ -62,6 +64,8 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
       imageUrl: "",
     },
   });
+
+  // console.log(image);
 
   // Detect Image Selections
   useEffect(() => {
@@ -90,7 +94,7 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
 
       setTimeout(() => {
         router.push(`/${params.storeId}/billboards`);
-      },1000)
+      }, 1000);
 
       toast({
         description: `🎉 ${toastMessage}`,
@@ -108,11 +112,20 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
   const onDelete = async () => {
     try {
       setLoading(true);
+      // Get the Billboard to delete its Image first from uploadthing
+      const billboard = await axios.get(
+        `/api/${params.storeId}/billboards/${params.billboardId}`
+      );
+      console.log(billboard)
+      const imageUrl = billboard.data.imageUrl;
+      HandleImageDelete(imageUrl);
       await axios.delete(
         `/api/${params.storeId}/billboards/${params.billboardId}`
       );
       router.refresh();
-      router.push(`/${params.storeId}/billboards`);
+      setTimeout(() => {
+        router.push(`/${params.storeId}/billboards`);
+      }, 1000);
       toast({
         description: "👍👍 Billboard deleted successfully",
       });
@@ -192,7 +205,7 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
                 <FormLabel>Background Image</FormLabel>
                 <FormControl>
                   <ImageUpload
-                    value={field.value ? [field.value] : []}
+                    value={field.value ? [field.value] : undefined}
                     disabled={loading}
                     onChange={(url) => field.onChange(url)}
                     onRemove={() => field.onChange("")}
@@ -213,23 +226,29 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
                 </FormDescription>
                 <FormControl>
                   {image ? (
-                    <div className="relative max-w-[400px] min-w-[200px] max-h-[400px] min-h-[200px] mt-4">
-                      <Image
-                        fill
-                        className="object-contain"
-                        src={image}
-                        alt="Image"
-                      />
-                      <Button
-                        onClick={() => HandleImageDelete(image)}
-                        type="button"
-                        size="icon"
-                        variant="destructive"
-                        className="absolute right-[-12px] top-0"
-                      >
-                        {imageIsDeleting ? <Loader2 /> : <Trash />}
-                      </Button>
-                    </div>
+                    // <div className="relative max-w-[400px] min-w-[200px] max-h-[400px] min-h-[200px] mt-4">
+                    //   <Image
+                    //     fill
+                    //     className="object-contain"
+                    //     src={image}
+                    //     alt="Image"
+                    //   />
+                    //   <Button
+                    //     onClick={() => HandleImageDelete(image)}
+                    //     type="button"
+                    //     size="icon"
+                    //     variant="destructive"
+                    //     className="absolute right-[-12px] top-0"
+                    //   >
+                    //     {imageIsDeleting ? <Loader2 /> : <Trash />}
+                    //   </Button>
+                    // </div>
+                    <ImageUpload
+                      value={[image]}
+                      deleted={imageIsDeleting}
+                      onChange={(url) => field.onChange(url)}
+                      onRemove={() => HandleImageDelete(image)}
+                    />
                   ) : (
                     <div
                       className="flex flex-col items-center max-w-[400px] p-12 border-2 

@@ -13,7 +13,7 @@ import Image from "next/image";
 import { UploadButton } from "@/utils/uploadthing";
 import { AddBillboardSchema, sizeSchema } from "@/schemas";
 
-import Heading from "@/components/ui/Heading";
+import Heading from "@/components/ui/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -76,7 +76,7 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
       router.refresh();
       setTimeout(() => {
         router.push(`/${params.storeId}/sizes`);
-      },1000)
+      }, 1000);
       toast({
         description: `🎉 ${toastMessage}`,
       });
