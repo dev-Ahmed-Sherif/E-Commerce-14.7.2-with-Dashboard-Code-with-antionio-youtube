@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Store } from "@prisma/client";
 import {
@@ -29,6 +28,7 @@ import {
 } from "@/components/ui/command";
 
 import { cn } from "@/lib/utils";
+import useToggleState from "@/hooks/use-toggle-state";
 
 type PopoverTriggerProps = React.ComponentPropsWithRef<typeof PopoverTrigger>;
 
@@ -37,7 +37,7 @@ type StoreSwitcherProps = PopoverTriggerProps & {
 };
 
 const StoreSwitcher = ({ className, items = [] }: StoreSwitcherProps) => {
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, toggleOpen] = useToggleState(false);
 
   const params = useParams();
   const router = useRouter();
@@ -53,12 +53,12 @@ const StoreSwitcher = ({ className, items = [] }: StoreSwitcherProps) => {
   );
 
   const onStoreSelect = (store: { value: string; label: string }) => {
-    setOpen(false);
+    toggleOpen();
     router.push(`/${store.value}`);
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={toggleOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -102,7 +102,7 @@ const StoreSwitcher = ({ className, items = [] }: StoreSwitcherProps) => {
             <CommandGroup>
               <CommandItem
                 onSelect={() => {
-                  setOpen(false);
+                  toggleOpen();
                   storeModal.onOpen();
                 }}
               >

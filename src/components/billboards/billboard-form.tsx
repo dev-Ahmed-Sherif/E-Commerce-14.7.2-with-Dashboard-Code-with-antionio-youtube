@@ -1,17 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
+import axios from "axios";
+import { Trash, Loader2 } from "lucide-react";
 import { Billboard } from "@prisma/client";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, Trash } from "lucide-react";
-import Image from "next/image";
-import { UploadButton } from "@/utils/uploadthing";
-import { AddBillboardSchema } from "@/schemas";
 
 import Heading from "@/components/ui/heading";
 import { Button } from "@/components/ui/button";
@@ -27,10 +23,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import AlertModal from "@/components/modals/alert-modal";
-import ApiAlert from "@/components/ui/api-alert";
-import ImageUpload from "@/components/ui/ImageUpload";
+import ImageUpload from "@/components/ui/image-upload";
 
-import useOrigin from "@/hooks/use-origin";
+import { useToast } from "@/hooks/use-toast";
+
+import { UploadButton } from "@/utils/uploadthing";
+
+import { AddBillboardSchema } from "@/schemas";
+import useToggleState from "@/hooks/use-toggle-state";
 
 type BillboardFormProps = {
   initialData: Billboard | null;
@@ -43,11 +43,10 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
   const { toast } = useToast();
   const params = useParams();
   const router = useRouter();
-  const origin = useOrigin();
 
-  const [open, setOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [imageIsDeleting, setImageIsDeleting] = useState<boolean>(false);
+  const [open, toggleOpen] = useToggleState(false);
+  const [loading, toggleLoading] = useToggleState(false);
+
   const [image, setImage] = useState<string | undefined>(initialData?.imageUrl);
 
   // console.log(image);
@@ -65,8 +64,6 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
     },
   });
 
-  // console.log(image);
-
   // Detect Image Selections
   useEffect(() => {
     if (typeof image === "string") {
@@ -79,9 +76,8 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
   }, [image]);
 
   const onSubmit = async (data: BillboardFormValues) => {
-    // console.log(data);
     try {
-      setLoading(true);
+      toggleLoading();
       if (initialData) {
         await axios.patch(
           `/api/${params.storeId}/billboards/${params.billboardId}`,
@@ -105,18 +101,18 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
         description: "Something went wrong",
       });
     } finally {
-      setLoading(false);
+      toggleLoading();
     }
   };
 
   const onDelete = async () => {
     try {
-      setLoading(true);
+      toggleLoading();
       // Get the Billboard to delete its Image first from uploadthing
       const billboard = await axios.get(
         `/api/${params.storeId}/billboards/${params.billboardId}`
       );
-      console.log(billboard)
+      // console.log(billboard)
       const imageUrl = billboard.data.imageUrl;
       HandleImageDelete(imageUrl);
       await axios.delete(
@@ -136,13 +132,12 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
           "Make sure removed all categories using this billboard first!",
       });
     } finally {
-      setLoading(false);
-      setOpen(false);
+      toggleLoading();
+      toggleOpen();
     }
   };
 
   const HandleImageDelete = (image: string) => {
-    setImageIsDeleting(true);
     // Delete the image from your server or cloud storage
     const imageKey = image.substring(image.lastIndexOf("/") + 1);
 
@@ -161,10 +156,6 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
           variant: "destructive",
           description: "Something went wrong",
         });
-      })
-      .finally(() => {
-        // After deleting, set the image state to undefined and set the imageIsDeleting to false
-        setImageIsDeleting(false);
       });
   };
 
@@ -173,7 +164,7 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
       <AlertModal
         isOpen={open}
         loading={loading}
-        onClose={() => setOpen(false)}
+        onClose={() => toggleOpen()}
         onConfirm={onDelete}
       />
       <div className="flex items-center justify-between">
@@ -184,7 +175,7 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
             variant="destructive"
             size="icon"
             onClick={() => {
-              setOpen(true);
+              toggleOpen();
             }}
           >
             <Trash className="h-4 w-4" />
@@ -197,24 +188,6 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-8 w-full"
         >
-          {/* <FormField
-            control={form.control}
-            name="imageUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Background Image</FormLabel>
-                <FormControl>
-                  <ImageUpload
-                    value={field.value ? [field.value] : undefined}
-                    disabled={loading}
-                    onChange={(url) => field.onChange(url)}
-                    onRemove={() => field.onChange("")}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
           <FormField
             control={form.control}
             name="imageUrl"
@@ -226,26 +199,8 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
                 </FormDescription>
                 <FormControl>
                   {image ? (
-                    // <div className="relative max-w-[400px] min-w-[200px] max-h-[400px] min-h-[200px] mt-4">
-                    //   <Image
-                    //     fill
-                    //     className="object-contain"
-                    //     src={image}
-                    //     alt="Image"
-                    //   />
-                    //   <Button
-                    //     onClick={() => HandleImageDelete(image)}
-                    //     type="button"
-                    //     size="icon"
-                    //     variant="destructive"
-                    //     className="absolute right-[-12px] top-0"
-                    //   >
-                    //     {imageIsDeleting ? <Loader2 /> : <Trash />}
-                    //   </Button>
-                    // </div>
                     <ImageUpload
                       value={[image]}
-                      deleted={imageIsDeleting}
                       onChange={(url) => field.onChange(url)}
                       onRemove={() => HandleImageDelete(image)}
                     />
@@ -300,8 +255,8 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
             />
           </div>
           <Button disabled={loading} className="ml-auto">
+            {loading && <Loader2 className="h-6 w-6" />}
             {action}
-            {loading && <span className="ml-2 text-gray-500">Loading...</span>}
           </Button>
         </form>
       </Form>

@@ -9,9 +9,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { Trash } from "lucide-react";
-// import Image from "next/image";
-import { UploadButton } from "@/utils/uploadthing";
-import { productSchema } from "@/schemas";
 
 import Heading from "@/components/ui/heading";
 import { Button } from "@/components/ui/button";
@@ -26,19 +23,22 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import AlertModal from "@/components/modals/alert-modal";
-import ApiAlert from "@/components/ui/api-alert";
-import ImageUpload from "@/components/ui/ImageUpload";
-
-import useOrigin from "@/hooks/use-origin";
+import ImageUpload from "@/components/ui/image-upload";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Checkbox } from "../ui/checkbox";
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import AlertModal from "@/components/modals/alert-modal";
+
+import useToggleState from "@/hooks/use-toggle-state";
+
+import { UploadButton } from "@/utils/uploadthing";
+
+import { productSchema } from "@/schemas";
 
 type ProductFormProps = {
   initialData:
@@ -63,10 +63,9 @@ const ProductForm = ({
   const { toast } = useToast();
   const params = useParams();
   const router = useRouter();
-  const origin = useOrigin();
 
-  const [open, setOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [open, toggleOpen] = useToggleState(false);
+  const [loading, toggleLoading] = useToggleState(false);
 
   const title = initialData ? "Edit Product" : "Create Product";
   const description = initialData ? "Edit a Product" : "Add New Product";
@@ -95,7 +94,7 @@ const ProductForm = ({
   const onSubmit = async (data: ProductFormValues) => {
     // console.log(data);
     try {
-      setLoading(true);
+      toggleLoading();
       if (initialData) {
         await axios.patch(
           `/api/${params.storeId}/products/${params.ProductId}`,
@@ -119,13 +118,13 @@ const ProductForm = ({
         description: "Something went wrong",
       });
     } finally {
-      setLoading(false);
+      toggleLoading();
     }
   };
 
   const onDelete = async () => {
     try {
-      setLoading(true);
+      toggleLoading();
       await axios.delete(`/api/${params.storeId}/products/${params.ProductId}`);
       router.refresh();
       router.push(`/${params.storeId}/products`);
@@ -139,8 +138,8 @@ const ProductForm = ({
           "Make sure removed all categories using this Product first!",
       });
     } finally {
-      setLoading(false);
-      setOpen(false);
+      toggleLoading();
+      toggleOpen();
     }
   };
 
@@ -149,7 +148,7 @@ const ProductForm = ({
       <AlertModal
         isOpen={open}
         loading={loading}
-        onClose={() => setOpen(false)}
+        onClose={() => toggleOpen()}
         onConfirm={onDelete}
       />
       <div className="flex items-center justify-between">
@@ -160,7 +159,7 @@ const ProductForm = ({
             variant="destructive"
             size="icon"
             onClick={() => {
-              setOpen(true);
+              toggleOpen();
             }}
           >
             <Trash className="h-4 w-4" />

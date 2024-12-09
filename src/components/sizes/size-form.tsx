@@ -7,11 +7,7 @@ import { Size } from "@prisma/client";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useToast } from "@/hooks/use-toast";
 import { Loader2, Trash } from "lucide-react";
-import Image from "next/image";
-import { UploadButton } from "@/utils/uploadthing";
-import { AddBillboardSchema, sizeSchema } from "@/schemas";
 
 import Heading from "@/components/ui/heading";
 import { Button } from "@/components/ui/button";
@@ -26,11 +22,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import AlertModal from "@/components/modals/alert-modal";
-import ApiAlert from "@/components/ui/api-alert";
-import ImageUpload from "@/components/ui/ImageUpload";
 
-import useOrigin from "@/hooks/use-origin";
+import AlertModal from "@/components/modals/alert-modal";
+
+import { useToast } from "@/hooks/use-toast";
+
+import useToggleState from "@/hooks/use-toggle-state";
+
+import { sizeSchema } from "@/schemas";
 
 type SizeFormProps = {
   initialData: Size | null;
@@ -43,10 +42,9 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
   const { toast } = useToast();
   const params = useParams();
   const router = useRouter();
-  const origin = useOrigin();
 
-  const [open, setOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [open, toggleOpen] = useToggleState(false);
+  const [loading, toggleLoading] = useToggleState(false);
 
   const title = initialData ? "Edit Size" : "Create Size";
   const description = initialData ? "Edit a Size" : "Add New Size";
@@ -64,7 +62,7 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
   const onSubmit = async (data: SizeFormValues) => {
     // console.log(data);
     try {
-      setLoading(true);
+      toggleLoading();
       if (initialData) {
         await axios.patch(
           `/api/${params.storeId}/sizes/${params.sizeId}`,
@@ -86,13 +84,13 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
         description: "Something went wrong",
       });
     } finally {
-      setLoading(false);
+      toggleLoading();
     }
   };
 
   const onDelete = async () => {
     try {
-      setLoading(true);
+      toggleLoading();
       await axios.delete(`/api/${params.storeId}/sizes/${params.sizeId}`);
       router.refresh();
       router.push(`/${params.storeId}/sizes`);
@@ -106,8 +104,8 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
           "Make sure removed all products using this billboard first!",
       });
     } finally {
-      setLoading(false);
-      setOpen(false);
+      toggleLoading();
+      toggleOpen();
     }
   };
 
@@ -116,7 +114,7 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
       <AlertModal
         isOpen={open}
         loading={loading}
-        onClose={() => setOpen(false)}
+        onClose={() => toggleOpen()}
         onConfirm={onDelete}
       />
       <div className="flex items-center justify-between">
@@ -127,7 +125,7 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
             variant="destructive"
             size="icon"
             onClick={() => {
-              setOpen(true);
+              toggleOpen();
             }}
           >
             <Trash className="h-4 w-4" />

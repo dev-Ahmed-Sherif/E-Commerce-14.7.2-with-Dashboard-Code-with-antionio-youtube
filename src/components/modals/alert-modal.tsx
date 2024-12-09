@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Modal from "../ui/model";
 import { Button } from "../ui/button";
+import useToggleState from "@/hooks/use-toggle-state";
 
 type AlertModalProps = {
   isOpen: boolean;
@@ -17,10 +18,10 @@ const AlertModal = ({
   onClose,
   onConfirm,
 }: AlertModalProps) => {
-  const [isMounted, setIsMounted] = useState(false);
+  const [isMounted, toggleMounted] = useToggleState(false);
 
   useEffect(() => {
-    setIsMounted(true);
+    toggleMounted();
   }, []);
 
   if (!isMounted) {

@@ -1,14 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import axios from "axios";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 
 import { useStoreModal } from "@/hooks/use-store-modal";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 import Modal from "@/components/ui/model";
 import {
@@ -21,13 +20,16 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+
+import useToggleState from "@/hooks/use-toggle-state";
+
 import { AddStoreSchema } from "@/schemas";
 
 const StoreModal = () => {
   const storeModal = useStoreModal();
   const { toast } = useToast();
 
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, toggleLoading] = useToggleState(false);
 
   const form = useForm<z.infer<typeof AddStoreSchema>>({
     resolver: zodResolver(AddStoreSchema),
@@ -38,7 +40,7 @@ const StoreModal = () => {
 
   const onSubmit = async (values: z.infer<typeof AddStoreSchema>) => {
     try {
-      setLoading(true);
+      toggleLoading();
       const response = await axios.post("/api/stores", values);
       toast({
         description: "🎉 Store Created Successfully.",
@@ -53,7 +55,7 @@ const StoreModal = () => {
         action: <ToastAction altText="Try again">Try again</ToastAction>,
       });
     } finally {
-      setLoading(false);
+      toggleLoading();
     }
   };
 

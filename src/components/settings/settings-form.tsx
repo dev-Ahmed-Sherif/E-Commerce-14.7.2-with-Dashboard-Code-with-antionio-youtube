@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { Store } from "@prisma/client";
@@ -9,8 +8,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { Trash } from "lucide-react";
-
-import { AddStoreSchema } from "@/schemas";
 
 import Heading from "@/components/ui/heading";
 import { Button } from "@/components/ui/button";
@@ -29,6 +26,10 @@ import ApiAlert from "@/components/ui/api-alert";
 
 import useOrigin from "@/hooks/use-origin";
 
+import useToggleState from "@/hooks/use-toggle-state";
+
+import { AddStoreSchema } from "@/schemas";
+
 type SettingsFormProps = {
   initialData: Store;
 };
@@ -37,8 +38,8 @@ type SettingsFormProps = {
 type SettingsFormValues = z.infer<typeof AddStoreSchema>;
 
 const SettingsForm = ({ initialData }: SettingsFormProps) => {
-  const [open, setOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [open, toggleOpen] = useToggleState(false);
+  const [loading, toggleLoading] = useToggleState(false);
 
   const { toast } = useToast();
   const params = useParams();
@@ -53,7 +54,7 @@ const SettingsForm = ({ initialData }: SettingsFormProps) => {
   const onSubmit = async (data: SettingsFormValues) => {
     // console.log(data);
     try {
-      setLoading(true);
+      toggleLoading();
       await axios.patch(`/api/stores/${params.storeId}`, data);
       router.refresh();
       toast({
@@ -65,13 +66,13 @@ const SettingsForm = ({ initialData }: SettingsFormProps) => {
         description: "Something went wrong",
       });
     } finally {
-      setLoading(false);
+      toggleLoading();
     }
   };
 
   const onDelete = async () => {
     try {
-      setLoading(true);
+      toggleLoading();
       await axios.delete(`/api/stores/${params.storeId}`);
       router.refresh();
       router.push("/");
@@ -84,8 +85,8 @@ const SettingsForm = ({ initialData }: SettingsFormProps) => {
         description: "Make sure removed all products and categories first!",
       });
     } finally {
-      setLoading(false);
-      setOpen(false);
+      toggleLoading();
+      toggleOpen();
     }
   };
 
@@ -94,7 +95,7 @@ const SettingsForm = ({ initialData }: SettingsFormProps) => {
       <AlertModal
         isOpen={open}
         loading={loading}
-        onClose={() => setOpen(false)}
+        onClose={() => toggleOpen()}
         onConfirm={onDelete}
       />
       <div className="flex items-center justify-between">
@@ -104,7 +105,7 @@ const SettingsForm = ({ initialData }: SettingsFormProps) => {
           variant="destructive"
           size="icon"
           onClick={() => {
-            setOpen(true);
+            toggleOpen();
           }}
         >
           <Trash className="h-4 w-4" />

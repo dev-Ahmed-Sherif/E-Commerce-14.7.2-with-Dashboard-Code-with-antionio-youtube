@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import StoreModal from "@/components/modals/store-modal";
 
+import useToggleState from "@/hooks/use-toggle-state";
+
 const ModalProvider = () => {
-  const [isMounted, setIsMounted] = useState(false);
+  const [isMounted, toggleIsMounted] = useToggleState(false);
 
   useEffect(() => {
-    setIsMounted(true);
+    toggleIsMounted();
   }, []);
 
   if (!isMounted) {

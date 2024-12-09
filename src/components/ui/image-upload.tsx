@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
-import axios from "axios";
 import { Loader2, Trash } from "lucide-react";
 
 // import { UploadButton } from "@/utils/uploadthing";
@@ -10,9 +9,10 @@ import { Loader2, Trash } from "lucide-react";
 // import { useToast } from "@/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
+import useToggleState from "@/hooks/use-toggle-state";
 
 type ImageUploadProps = {
-  deleted: boolean;
+  deleted?: boolean;
   value: any[] | undefined;
   onChange: (value: string) => void;
   onRemove: (value: string) => void;
@@ -24,9 +24,12 @@ const ImageUpload = ({
   onChange,
   onRemove,
 }: ImageUploadProps) => {
-  // const [isMounted, setIsMounted] = useState<boolean>(false);
-  const [imageIsDeleting, setImageIsDeleting] = useState<boolean>(deleted);
-  const [image, setImage] = useState<any[] | undefined>(value);
+  const [imageIsDeleting, toggleImageIsDeleting] = useToggleState(false);
+
+  const onImageRemove = (value: string) => {
+    toggleImageIsDeleting();
+    onRemove(value);
+  };
 
   // const { toast } = useToast();
 
@@ -80,7 +83,7 @@ const ImageUpload = ({
         >
           <Image fill className="object-contain" src={item} alt="Image" />
           <Button
-            onClick={() => onRemove(item)}
+            onClick={() => onImageRemove(item)}
             type="button"
             size="icon"
             variant="destructive"

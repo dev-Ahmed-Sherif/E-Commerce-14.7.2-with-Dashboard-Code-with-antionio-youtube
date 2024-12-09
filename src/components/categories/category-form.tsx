@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { Billboard, Category } from "@prisma/client";
@@ -9,8 +9,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Trash } from "lucide-react";
-import Image from "next/image";
-import { UploadButton } from "@/utils/uploadthing";
 import { AddCategorySchema } from "@/schemas";
 
 import Heading from "@/components/ui/heading";
@@ -35,7 +33,7 @@ import {
 } from "@/components/ui/select";
 import AlertModal from "@/components/modals/alert-modal";
 
-import useOrigin from "@/hooks/use-origin";
+import useToggleState from "@/hooks/use-toggle-state";
 
 type CategoryFormProps = {
   initialData: Category | null;
@@ -49,10 +47,9 @@ const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => {
   const { toast } = useToast();
   const params = useParams();
   const router = useRouter();
-  const origin = useOrigin();
 
-  const [open, setOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [open, toggleOpen] = useToggleState(false);
+  const [loading, toggleLoading] = useToggleState(false);
 
   const title = initialData ? "Edit Category" : "Create Category";
   const description = initialData ? "Edit a Category" : "Add New Category";
@@ -70,7 +67,7 @@ const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => {
   const onSubmit = async (data: CategoryFormValues) => {
     // console.log(data);
     try {
-      setLoading(true);
+      toggleLoading();
       if (initialData) {
         await axios.patch(
           `/api/${params.storeId}/categories/${params.categoryId}`,
@@ -94,13 +91,13 @@ const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => {
         description: "Something went wrong",
       });
     } finally {
-      setLoading(false);
+      toggleLoading();
     }
   };
 
   const onDelete = async () => {
     try {
-      setLoading(true);
+      toggleLoading();
       await axios.delete(
         `/api/${params.storeId}/categories/${params.CategoryId}`
       );
@@ -116,8 +113,8 @@ const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => {
           "Make sure removed all products using this Category first!",
       });
     } finally {
-      setLoading(false);
-      setOpen(false);
+      toggleLoading();
+      toggleOpen();
     }
   };
 
@@ -126,7 +123,7 @@ const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => {
       <AlertModal
         isOpen={open}
         loading={loading}
-        onClose={() => setOpen(false)}
+        onClose={() => toggleOpen()}
         onConfirm={onDelete}
       />
       <div className="flex items-center justify-between">
@@ -137,7 +134,7 @@ const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => {
             variant="destructive"
             size="icon"
             onClick={() => {
-              setOpen(true);
+              toggleOpen();
             }}
           >
             <Trash className="h-4 w-4" />
@@ -203,8 +200,8 @@ const CategoryForm = ({ initialData, billboards }: CategoryFormProps) => {
             />
           </div>
           <Button disabled={loading} className="ml-auto">
+            {loading && <Loader2 className="h-6 w-6" />}
             {action}
-            {loading && <span className="ml-2 text-gray-500">Loading...</span>}
           </Button>
         </form>
       </Form>

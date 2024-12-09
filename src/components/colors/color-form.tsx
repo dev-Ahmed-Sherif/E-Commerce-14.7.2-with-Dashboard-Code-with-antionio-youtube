@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { Color } from "@prisma/client";
@@ -8,7 +7,7 @@ import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
-import { Trash } from "lucide-react";
+import { Loader2, Trash } from "lucide-react";
 
 import Heading from "@/components/ui/heading";
 import { Button } from "@/components/ui/button";
@@ -26,9 +25,8 @@ import { Input } from "@/components/ui/input";
 
 import AlertModal from "@/components/modals/alert-modal";
 
-import useOrigin from "@/hooks/use-origin";
-
 import { colorSchema } from "@/schemas";
+import useToggleState from "@/hooks/use-toggle-state";
 
 type ColorFormProps = {
   initialData: Color | null;
@@ -41,10 +39,9 @@ const ColorForm = ({ initialData }: ColorFormProps) => {
   const { toast } = useToast();
   const params = useParams();
   const router = useRouter();
-  const origin = useOrigin();
 
-  const [open, setOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [open, toggleOpen] = useToggleState(false);
+  const [loading, toggleLoading] = useToggleState(false);
 
   const title = initialData ? "Edit Color" : "Create Color";
   const description = initialData ? "Edit a Color" : "Add New Color";
@@ -60,9 +57,8 @@ const ColorForm = ({ initialData }: ColorFormProps) => {
   });
 
   const onSubmit = async (data: ColorFormValues) => {
-    // console.log(data);
     try {
-      setLoading(true);
+      toggleLoading();
       if (initialData) {
         await axios.patch(
           `/api/${params.storeId}/colors/${params.colorId}`,
@@ -84,13 +80,13 @@ const ColorForm = ({ initialData }: ColorFormProps) => {
         description: "Something went wrong",
       });
     } finally {
-      setLoading(false);
+      toggleLoading();
     }
   };
 
   const onDelete = async () => {
     try {
-      setLoading(true);
+      toggleLoading();
       await axios.delete(`/api/${params.storeId}/colors/${params.colorId}`);
       router.refresh();
       router.push(`/${params.storeId}/colors`);
@@ -103,8 +99,8 @@ const ColorForm = ({ initialData }: ColorFormProps) => {
         description: "Make sure removed all products using this Color first!",
       });
     } finally {
-      setLoading(false);
-      setOpen(false);
+      toggleLoading();
+      toggleOpen();
     }
   };
 
@@ -113,7 +109,7 @@ const ColorForm = ({ initialData }: ColorFormProps) => {
       <AlertModal
         isOpen={open}
         loading={loading}
-        onClose={() => setOpen(false)}
+        onClose={() => toggleOpen()}
         onConfirm={onDelete}
       />
       <div className="flex items-center justify-between">
@@ -124,7 +120,7 @@ const ColorForm = ({ initialData }: ColorFormProps) => {
             variant="destructive"
             size="icon"
             onClick={() => {
-              setOpen(true);
+              toggleOpen();
             }}
           >
             <Trash className="h-4 w-4" />
@@ -182,8 +178,8 @@ const ColorForm = ({ initialData }: ColorFormProps) => {
             />
           </div>
           <Button disabled={loading} className="ml-auto">
+            {loading && <Loader2 className="h-6 w-6" />}
             {action}
-            {loading && <span className="ml-2 text-gray-500">Loading...</span>}
           </Button>
         </form>
       </Form>

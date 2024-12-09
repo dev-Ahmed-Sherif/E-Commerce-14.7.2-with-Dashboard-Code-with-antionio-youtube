@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import AlertModal from "@/components/modals/alert-modal";
+import useToggleState from "@/hooks/use-toggle-state";
 
 type CellActionProps = {
   data: BillboardColumn;
@@ -26,8 +26,8 @@ const CellAction = ({ data }: CellActionProps) => {
   const router = useRouter();
   const params = useParams();
 
-  const [loading, setLoading] = useState<boolean>(false);
-  const [open, setOpen] = useState<boolean>(false);
+  const [loading, toggleLoading] = useToggleState(false);
+  const [open, toogleOpen] = useToggleState(false);
 
   const onCopy = (id: string) => {
     navigator.clipboard.writeText(id);
@@ -39,7 +39,7 @@ const CellAction = ({ data }: CellActionProps) => {
 
   const onDelete = async () => {
     try {
-      setLoading(true);
+      toggleLoading();
       // Get the Billboard to delete its Image first from uploadthing
       const billboard = await axios.get(
         `/api/${params.storeId}/billboards/${params.billboardId}`
@@ -59,8 +59,8 @@ const CellAction = ({ data }: CellActionProps) => {
           "Make sure removed all categories using this billboard first!",
       });
     } finally {
-      setLoading(false);
-      setOpen(false);
+      toggleLoading();
+      toogleOpen();
     }
   };
 
@@ -93,7 +93,7 @@ const CellAction = ({ data }: CellActionProps) => {
       <AlertModal
         isOpen={open}
         loading={loading}
-        onClose={() => setOpen(false)}
+        onClose={() => toogleOpen()}
         onConfirm={onDelete}
       />
       <DropdownMenu>
@@ -117,7 +117,7 @@ const CellAction = ({ data }: CellActionProps) => {
             <Edit className="mr-2 h-4 w-4" />
             Update
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpen(true)}>
+          <DropdownMenuItem onClick={() => toogleOpen()}>
             <Trash className="mr-2 h-4 w-4" />
             Delete
           </DropdownMenuItem>
