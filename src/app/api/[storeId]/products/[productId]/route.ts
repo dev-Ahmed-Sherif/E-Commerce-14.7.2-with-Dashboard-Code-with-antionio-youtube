@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     if (!params.productId)
-      return new NextResponse("product Id is required", { status: 400 });
+      return new NextResponse("Product Id is required", { status: 400 });
 
     // Here you can save the updated store to your database
     const product = await prismadb.product.findUnique({
@@ -93,7 +93,7 @@ export async function PATCH(
         images: {
           deleteMany: {},
         },
-        isFeatured,
+        isFeatured: isArchived ? false : true,
         isArchived,
       },
     });
@@ -129,7 +129,7 @@ export async function DELETE(
       return new NextResponse("Store is required", { status: 400 });
 
     if (!params.productId)
-      return new NextResponse("Billboard Id is required", { status: 400 });
+      return new NextResponse("Product Id is required", { status: 400 });
 
     const storeByUserId = await prismadb.store.findFirst({
       where: { id: params.storeId, userId },

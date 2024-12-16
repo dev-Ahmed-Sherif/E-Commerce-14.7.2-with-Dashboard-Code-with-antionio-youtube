@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
@@ -43,20 +44,53 @@ const CellAction = ({ data }: CellActionProps) => {
   const onDelete = async () => {
     try {
       toggleLoading();
+      const product = await axios.get(
+        `/api/${params.storeId}/products/${data.id}`
+      );
+      const productImages = product.data.images;
+      for (let i = 0; i < productImages.length; i++) {
+        HandleImageDelete(productImages[i]);
+      }
       await axios.delete(`/api/${params.storeId}/products/${data.id}`);
       router.refresh();
+      setTimeout(() => {
+        router.push(`/${params.storeId}/products`);
+      }, 1000);
       toast({
         description: "👍👍 Product deleted successfully",
       });
     } catch (err) {
       toast({
         variant: "destructive",
-        description: "Something went wrong",
+        description:
+          "Make sure removed all categories using this Product first!",
       });
     } finally {
       toggleLoading();
       toggleOpen();
     }
+  };
+
+  const HandleImageDelete = (image: any) => {
+    // console.log(image);
+    // Delete the image from your server or cloud storage
+    const imageKey = image.url.substring(image.url.lastIndexOf("/") + 1);
+
+    axios
+      .post("/api/uploadthing/delete", { imageKey })
+      .then((response) => {
+        if (response.data.success) {
+          // toast({
+          //   description: "🎉 Image deleted successfully",
+          // });
+        }
+      })
+      .catch(() => {
+        toast({
+          variant: "destructive",
+          description: "Something went wrong",
+        });
+      });
   };
 
   return (

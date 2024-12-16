@@ -4,18 +4,22 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { billboardId: string } }
+  {
+    params,
+  }: {
+    params: { billboardId: string };
+  }
 ) {
   try {
     if (!params.billboardId)
       return new NextResponse("Billboard Id is required", { status: 400 });
 
     // Here you can save the updated store to your database
-    const Billboard = await prismadb.billboard.findUnique({
+    const billboard = await prismadb.billboard.findUnique({
       where: { id: params.billboardId },
     });
 
-    return NextResponse.json(Billboard);
+    return NextResponse.json(billboard);
   } catch (err) {
     console.log("[BILLBOARD_GET]:", err);
     return new NextResponse("Internal Server Error", { status: 500 });
@@ -54,12 +58,12 @@ export async function PATCH(
       return new NextResponse("Unauthorized", { status: 403 });
 
     // Here you can save the updated store to your database
-    const updatedBillboard = await prismadb.billboard.updateMany({
+    const billboard = await prismadb.billboard.update({
       where: { id: params.billboardId },
       data: { label, imageUrl },
     });
 
-    return NextResponse.json(updatedBillboard);
+    return NextResponse.json(billboard);
   } catch (err) {
     console.log("[BILLBOARD_PATCH]:", err);
     return new NextResponse("Internal Server Error", { status: 500 });
@@ -68,7 +72,11 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { storeId: string; billboardId: string } }
+  {
+    params,
+  }: {
+    params: { storeId: string; billboardId: string };
+  }
 ) {
   try {
     const { userId } = await auth();
@@ -89,11 +97,11 @@ export async function DELETE(
       return new NextResponse("Unauthorized", { status: 403 });
 
     // Here you can save the updated store to your database
-    const deletedBillboards = await prismadb.billboard.deleteMany({
+    const Billboards = await prismadb.billboard.delete({
       where: { id: params.billboardId },
     });
 
-    return NextResponse.json(deletedBillboards);
+    return NextResponse.json(Billboards);
   } catch (err) {
     console.log("[BILLBOARD_DELETE]:", err);
     return new NextResponse("Internal Server Error", { status: 500 });

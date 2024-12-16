@@ -93,9 +93,11 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
       toggleLoading();
       await axios.delete(`/api/${params.storeId}/sizes/${params.sizeId}`);
       router.refresh();
-      router.push(`/${params.storeId}/sizes`);
+      setTimeout(()=>{
+        router.push(`/${params.storeId}/sizes`);
+      },1000)
       toast({
-        description: "👍👍 Billboard deleted successfully",
+        description: "👍👍 Size deleted successfully",
       });
     } catch (err) {
       toast({
@@ -150,7 +152,7 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
                       {...field}
                       disabled={loading}
                       type="text"
-                      placeholder="Category Name"
+                      placeholder="Size Name"
                     />
                   </FormControl>
                   <FormMessage />
@@ -177,8 +179,8 @@ const SizeForm = ({ initialData }: SizeFormProps) => {
             />
           </div>
           <Button disabled={loading} className="ml-auto">
+            {loading && <Loader2 className="h-6 w-6" />}
             {action}
-            {loading && <span className="ml-2 text-gray-500">Loading...</span>}
           </Button>
         </form>
       </Form>

@@ -1,11 +1,11 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
 
 import { BillboardColumn } from "@/components/billboards/columns";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+
 import AlertModal from "@/components/modals/alert-modal";
+
+import { useToast } from "@/hooks/use-toast";
 import useToggleState from "@/hooks/use-toggle-state";
 
 type CellActionProps = {
@@ -38,13 +41,14 @@ const CellAction = ({ data }: CellActionProps) => {
   };
 
   const onDelete = async () => {
+    // console.log(data);
     try {
       toggleLoading();
       // Get the Billboard to delete its Image first from uploadthing
       const billboard = await axios.get(
-        `/api/${params.storeId}/billboards/${params.billboardId}`
+        `/api/${params.storeId}/billboards/${data.id}`
       );
-      console.log(billboard);
+      // console.log(billboard);
       const imageUrl = billboard.data.imageUrl;
       HandleImageDelete(imageUrl);
       await axios.delete(`/api/${params.storeId}/billboards/${data.id}`);
@@ -72,19 +76,16 @@ const CellAction = ({ data }: CellActionProps) => {
       .post("/api/uploadthing/delete", { imageKey })
       .then((response) => {
         if (response.data.success) {
-          toast({
-            description: "🎉 Image deleted successfully",
-          });
+          // toast({
+          //   description: "🎉 Image deleted successfully",
+          // });
         }
       })
       .catch(() => {
         toast({
           variant: "destructive",
-          description: "Something went wrong",
+          description: "Something went wrong with deleting the image",
         });
-      })
-      .finally(() => {
-        // After deleting, set the image state to undefined and set the imageIsDeleting to false
       });
   };
 

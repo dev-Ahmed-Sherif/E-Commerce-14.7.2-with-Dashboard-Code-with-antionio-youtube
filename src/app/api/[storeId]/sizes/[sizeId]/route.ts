@@ -88,7 +88,7 @@ export async function DELETE(
       return new NextResponse("Unauthorized", { status: 403 });
 
     // Here you can save the updated store to your database
-    const sizes = await prismadb.size.deleteMany({
+    const sizes = await prismadb.size.delete({
       where: { id: params.sizeId },
     });
 

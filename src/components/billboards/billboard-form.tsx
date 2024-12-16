@@ -114,7 +114,7 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
       );
       // console.log(billboard)
       const imageUrl = billboard.data.imageUrl;
-      HandleImageDelete(imageUrl);
+      HandleImageDelete(imageUrl, true);
       await axios.delete(
         `/api/${params.storeId}/billboards/${params.billboardId}`
       );
@@ -137,7 +137,7 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
     }
   };
 
-  const HandleImageDelete = (image: string) => {
+  const HandleImageDelete = (image: string, itemDelete?: boolean) => {
     // Delete the image from your server or cloud storage
     const imageKey = image.substring(image.lastIndexOf("/") + 1);
 
@@ -146,9 +146,11 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
       .then((response) => {
         if (response.data.success) {
           setImage("");
-          toast({
-            description: "🎉 Image deleted successfully",
-          });
+          if (!itemDelete) {
+            toast({
+              description: "🎉 Image deleted successfully",
+            });
+          }
         }
       })
       .catch(() => {
@@ -201,7 +203,6 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
                   {image ? (
                     <ImageUpload
                       value={[image]}
-                      onChange={(url) => field.onChange(url)}
                       onRemove={() => HandleImageDelete(image)}
                     />
                   ) : (

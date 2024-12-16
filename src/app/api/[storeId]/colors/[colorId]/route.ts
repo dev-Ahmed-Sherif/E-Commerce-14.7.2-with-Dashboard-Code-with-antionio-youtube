@@ -67,7 +67,11 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { storeId: string; colorId: string } }
+  {
+    params,
+  }: {
+    params: { storeId: string; colorId: string };
+  }
 ) {
   try {
     const { userId } = await auth();
@@ -88,11 +92,11 @@ export async function DELETE(
       return new NextResponse("Unauthorized", { status: 403 });
 
     // Here you can save the updated store to your database
-    const sizes = await prismadb.size.deleteMany({
+    const color = await prismadb.color.delete({
       where: { id: params.colorId },
     });
 
-    return NextResponse.json(sizes);
+    return NextResponse.json(color);
   } catch (err) {
     console.log("[COLOR_DELETE]:", err);
     return new NextResponse("Internal Server Error", { status: 500 });

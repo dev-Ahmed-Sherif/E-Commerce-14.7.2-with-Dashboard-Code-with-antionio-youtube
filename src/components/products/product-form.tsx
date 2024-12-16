@@ -8,7 +8,7 @@ import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
-import { Trash } from "lucide-react";
+import { Loader2, Trash } from "lucide-react";
 
 import Heading from "@/components/ui/heading";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+
 import AlertModal from "@/components/modals/alert-modal";
 
 import useToggleState from "@/hooks/use-toggle-state";
@@ -67,6 +68,14 @@ const ProductForm = ({
   const [open, toggleOpen] = useToggleState(false);
   const [loading, toggleLoading] = useToggleState(false);
 
+  const [formImages, setFormImages] = useState<any[]>(
+    initialData?.images as any[]
+  );
+
+  // console.log(formImages);
+  // console.log(formImages[0]);
+  // console.log(formImages.length);
+
   const title = initialData ? "Edit Product" : "Create Product";
   const description = initialData ? "Edit a Product" : "Add New Product";
   const toastMessage = initialData ? "Product Updated" : "Create Product";
@@ -83,6 +92,7 @@ const ProductForm = ({
           name: "",
           images: [],
           price: 0,
+          quantity: 0,
           categoryId: "",
           colorId: "",
           sizeId: "",
@@ -91,20 +101,46 @@ const ProductForm = ({
         },
   });
 
+  // Detect Image Selections
+  useEffect(() => {
+    if (typeof formImages === "object" && formImages[0] !== undefined) {
+      form.setValue("images", formImages, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    }
+    // else if (formImages[0] !== undefined) {
+    //   form.setValue("images", [], {
+    //     shouldValidate: true,
+    //     shouldDirty: true,
+    //     shouldTouch: true,
+    //   });
+    // }
+    else if (formImages?.length === 0) {
+      form.setValue("images", [], {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    }
+  }, [formImages]);
+
   const onSubmit = async (data: ProductFormValues) => {
     // console.log(data);
     try {
       toggleLoading();
+
       if (initialData) {
         await axios.patch(
-          `/api/${params.storeId}/products/${params.ProductId}`,
+          `/api/${params.storeId}/products/${params.productId}`,
           data
         );
       } else {
         await axios.post(`/api/${params.storeId}/products`, data);
       }
-      router.refresh();
 
+      router.refresh();
       setTimeout(() => {
         router.push(`/${params.storeId}/products`);
       }, 1000);
@@ -125,9 +161,20 @@ const ProductForm = ({
   const onDelete = async () => {
     try {
       toggleLoading();
-      await axios.delete(`/api/${params.storeId}/products/${params.ProductId}`);
+
+      const product = await axios.get(
+        `/api/${params.storeId}/products/${params.productId}`
+      );
+      const productImages = product.data.images;
+      for (let i = 0; i < productImages.length; i++) {
+        HandleImageDelete(productImages[i], true);
+      }
+
+      await axios.delete(`/api/${params.storeId}/products/${params.productId}`);
       router.refresh();
-      router.push(`/${params.storeId}/products`);
+      setTimeout(() => {
+        router.push(`/${params.storeId}/products`);
+      }, 1000);
       toast({
         description: "👍👍 Product deleted successfully",
       });
@@ -141,6 +188,34 @@ const ProductForm = ({
       toggleLoading();
       toggleOpen();
     }
+  };
+
+  const HandleImageDelete = (image: any, itemDelete?: boolean) => {
+    // console.log(image);
+    // Delete the image from your server or cloud storage
+    const imageKey = image.url.substring(image.url.lastIndexOf("/") + 1);
+
+    // Remove Deleted Image from Array
+
+    setFormImages(formImages.filter((value) => value.url !== image.url));
+
+    axios
+      .post("/api/uploadthing/delete", { imageKey })
+      .then((response) => {
+        if (response.data.success) {
+          if (!itemDelete) {
+            toast({
+              description: "🎉 Image deleted successfully",
+            });
+          }
+        }
+      })
+      .catch(() => {
+        toast({
+          variant: "destructive",
+          description: "Something went wrong",
+        });
+      });
   };
 
   return (
@@ -182,24 +257,16 @@ const ProductForm = ({
                   Choose an Image that will show-case your Store nicely
                 </FormDescription>
                 <FormControl>
-                  {/* {image ? (
-                    <div className="relative max-w-[400px] min-w-[200px] max-h-[400px] min-h-[200px] mt-4">
-                      <Image
-                        fill
-                        className="object-contain"
-                        src={image}
-                        alt="Image"
-                      />
-                      <Button
-                        onClick={() => HandleImageDelete(image)}
-                        type="button"
-                        size="icon"
-                        variant="destructive"
-                        className="absolute right-[-12px] top-0"
-                      >
-                        {imageIsDeleting ? <Loader2 /> : <Trash />}
-                      </Button>
-                    </div>
+                  {formImages !== undefined ? (
+                    // formImages.length >= 1 && formImages[0] !== undefined
+                    <ImageUpload
+                      value={[...formImages]}
+                      onRemove={(url) =>
+                        HandleImageDelete(
+                          formImages.find((image) => image.url === url)
+                        )
+                      }
+                    />
                   ) : (
                     <div
                       className="flex flex-col items-center max-w-[400px] p-12 border-2 
@@ -209,8 +276,7 @@ const ProductForm = ({
                         endpoint="imageUploader"
                         onClientUploadComplete={(res) => {
                           // Do something with the response
-                          console.log("Files: ", res);
-                          setImage(res[0].url);
+                          setFormImages(res);
                           toast({
                             description: "🎉 Upload Completed",
                           });
@@ -224,7 +290,7 @@ const ProductForm = ({
                         }}
                       />
                     </div>
-                  )} */}
+                  )}
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -267,6 +333,25 @@ const ProductForm = ({
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="quantity"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Quantity</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={loading}
+                      type="text"
+                      placeholder="9.99"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="categoryId"
@@ -365,26 +450,6 @@ const ProductForm = ({
             />
             <FormField
               control={form.control}
-              name="isFeatured"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel> Featured </FormLabel>
-                    <FormDescription>
-                      This Product will appear on the home page
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="isArchived"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
@@ -405,8 +470,8 @@ const ProductForm = ({
             />
           </div>
           <Button disabled={loading} className="ml-auto">
+            {loading && <Loader2 className="h-6 w-6" />}
             {action}
-            {loading && <span className="ml-2 text-gray-500">Loading...</span>}
           </Button>
         </form>
       </Form>

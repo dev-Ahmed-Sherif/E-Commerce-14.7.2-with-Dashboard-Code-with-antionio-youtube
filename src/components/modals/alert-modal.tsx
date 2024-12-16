@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import Modal from "../ui/model";
-import { Button } from "../ui/button";
+import { Loader2 } from "lucide-react";
+
+import Modal from "@/components/ui/model";
+import { Button } from "@/components/ui/button";
+
 import useToggleState from "@/hooks/use-toggle-state";
 
 type AlertModalProps = {
@@ -18,13 +21,15 @@ const AlertModal = ({
   onClose,
   onConfirm,
 }: AlertModalProps) => {
-  const [isMounted, toggleMounted] = useToggleState(false);
+  const [isMounted, toggleMounted] = useToggleState();
+
+  // console.log(isMounted)
 
   useEffect(() => {
     toggleMounted();
   }, []);
 
-  if (!isMounted) {
+  if (isMounted) {
     return null;
   }
   return (
@@ -39,6 +44,7 @@ const AlertModal = ({
           Cancel
         </Button>
         <Button disabled={loading} variant="destructive" onClick={onConfirm}>
+          {loading && <Loader2 className="h-6 w-6" />}
           Continue
         </Button>
       </div>

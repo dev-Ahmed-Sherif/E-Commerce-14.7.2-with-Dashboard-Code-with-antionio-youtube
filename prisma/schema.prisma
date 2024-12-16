@@ -22,6 +22,7 @@ model Store {
   sizes      Size[]      @relation("StoreToSize")
   colors     Color[]     @relation("StoreToColor")
   products   Product[]   @relation("StoreToProduct")
+  orders     Order[]     @relation("StoreToOrder")
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
 }
@@ -87,15 +88,17 @@ model Color {
 }
 
 model Product {
-  id          String   @id @default(uuid())
+  id          String      @id @default(uuid())
   name        String
   price       Float
-  isFeatured  Boolean  @default(false)
-  isArchived  Boolean  @default(false)
   description String
-  images      Image[]  @relation("ProductToImage")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  quantity    Int
+  isFeatured  Boolean     @default(false)
+  isArchived  Boolean     @default(false)
+  images      Image[]     @relation("ProductToImage")
+  orderItems  OrderItem[] @relation("ProductToOrderItem")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   storeId String
   store   Store  @relation("StoreToProduct", fields: [storeId], references: [id])
@@ -125,4 +128,33 @@ model Image {
   product   Product @relation("ProductToImage", fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
+}
+
+model Order {
+  id         String      @id @default(uuid())
+  orderItems OrderItem[] @relation("OrderToOrderItem")
+  isPaid     Boolean     @default(false)
+  phone      String      @default("")
+  address    String      @default("")
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  storeId String
+  store   Store  @relation("StoreToOrder", fields: [storeId], references: [id])
+
+  @@index([storeId])
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  quantity  Int
+  subtotal  Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderId String
+  order   Order  @relation("OrderToOrderItem", fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation("ProductToOrderItem", fields: [productId], references: [id], onDelete: Cascade)
 }

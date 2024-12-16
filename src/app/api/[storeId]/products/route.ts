@@ -17,7 +17,7 @@ export async function POST(
       colorId,
       sizeId,
       images,
-      isFeatured,
+      quantity,
       isArchived,
     } = body;
 
@@ -37,6 +37,9 @@ export async function POST(
     if (!sizeId)
       return new NextResponse("Size Id is required", { status: 400 });
 
+    if (!quantity)
+      return new NextResponse("Product Quantity is required", { status: 400 });
+
     if (!images || !images.length)
       return new NextResponse("Images URL is required", { status: 400 });
 
@@ -55,6 +58,7 @@ export async function POST(
         name,
         description: "",
         price,
+        quantity,
         categoryId,
         colorId,
         sizeId,
@@ -63,7 +67,7 @@ export async function POST(
             data: [...images.map((image: { url: string }) => image)],
           },
         },
-        isFeatured,
+        isFeatured: isArchived ? false : true,
         isArchived,
         storeId: params.storeId,
       },
