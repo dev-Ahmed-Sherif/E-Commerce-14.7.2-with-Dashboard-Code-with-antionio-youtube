@@ -2,7 +2,7 @@ import prismadb from "@/lib/prismadb";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-import Navbar from "@/components/layout/navbar";
+import Navbar from "@/components/dashboard/layout/navbar";
 
 type DashboardLayoutProps = {
   children: React.ReactNode;

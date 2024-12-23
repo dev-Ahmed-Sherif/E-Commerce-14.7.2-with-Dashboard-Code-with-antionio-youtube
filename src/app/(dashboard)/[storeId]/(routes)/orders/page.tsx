@@ -3,8 +3,8 @@ import { format } from "date-fns";
 import prismadb from "@/lib/prismadb";
 import { currencyFormatter } from "@/lib/utils";
 
-import Client from "@/components/orders/client";
-import { OrderColumn } from "@/components/orders/columns";
+import Client from "@/components/dashboard/orders/client";
+import { OrderColumn } from "@/components/dashboard/orders/columns";
 
 const OrdersPage = async ({ params }: { params: { storeId: string } }) => {
   const orders = await prismadb.order.findMany({

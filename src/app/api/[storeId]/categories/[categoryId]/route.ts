@@ -17,6 +17,9 @@ export async function GET(
     // Here you can save the updated store to your database
     const category = await prismadb.category.findUnique({
       where: { id: params.categoryId },
+      include: {
+        billboard: true,
+      },
     });
 
     return NextResponse.json(category);

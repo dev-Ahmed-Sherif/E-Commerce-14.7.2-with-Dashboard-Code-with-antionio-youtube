@@ -1,6 +1,6 @@
 import prismadb from "@/lib/prismadb";
 
-import ProductForm from "@/components/products/product-form";
+import ProductForm from "@/components/dashboard/products/product-form";
 
 const ProductPage = async ({
   params,

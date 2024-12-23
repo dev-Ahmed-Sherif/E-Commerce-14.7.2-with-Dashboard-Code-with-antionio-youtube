@@ -1,8 +1,8 @@
 import { format } from "date-fns";
 import prismadb from "@/lib/prismadb";
 
-import Client from "@/components/colors/client";
-import { ColorColumn } from "@/components/colors/columns";
+import Client from "@/components/dashboard/colors/client";
+import { ColorColumn } from "@/components/dashboard/colors/columns";
 
 const ColorsPage = async ({ params }: { params: { storeId: string } }) => {
   const colors = await prismadb.color.findMany({

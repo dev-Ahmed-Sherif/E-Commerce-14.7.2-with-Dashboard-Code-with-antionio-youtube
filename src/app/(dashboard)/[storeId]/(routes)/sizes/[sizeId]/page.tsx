@@ -1,6 +1,6 @@
 import prismadb from "@/lib/prismadb";
 
-import SizeForm from "@/components/sizes/size-form";
+import SizeForm from "@/components/dashboard/sizes/size-form";
 
 const SizePage = async ({
   params,

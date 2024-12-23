@@ -3,9 +3,9 @@ import { format } from "date-fns";
 import prismadb from "@/lib/prismadb";
 import { currencyFormatter } from "@/lib/utils";
 
-import Client from "@/components/products/client";
+import Client from "@/components/dashboard/products/client";
 
-import { ProductColumn } from "@/components/products/columns";
+import { ProductColumn } from "@/components/dashboard/products/columns";
 
 const ProductsPage = async ({ params }: { params: { storeId: string } }) => {
   const products = await prismadb.product.findMany({
