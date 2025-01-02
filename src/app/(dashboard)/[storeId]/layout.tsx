@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 
 import Navbar from "@/components/dashboard/layout/navbar";
 
+import ThemeProvider from "@/providers/theme-provider";
+
 type DashboardLayoutProps = {
   children: React.ReactNode;
   params: {

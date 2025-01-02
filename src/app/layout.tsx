@@ -11,6 +11,8 @@ import ModalProvider from "@/providers/modal-provider";
 
 import "./globals.css";
 import { ToastProvider } from "@/providers/toast-provider";
+// import { ThemeProvider } from "@/providers/theme-provider";
+import ThemeProvider  from "@/providers/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,18 +30,25 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={inter.className}>
-          <ModalProvider />
-          <NextSSRPlugin
-            /**
-             * The `extractRouterConfig` will extract **only** the route configs
-             * from the router to prevent additional information from being
-             * leaked to the client. The data passed to the client is the same
-             * as if you were to fetch `/api/uploadthing` directly.
-             */
-            routerConfig={extractRouterConfig(ourFileRouter)}
-          />
-          {children}
-          <ToastProvider />
+          <ThemeProvider
+            attribute="class"
+            // defaultTheme="dark"
+            enableSystem
+            // disableTransitionOnChange
+          >
+            <ModalProvider />
+            <NextSSRPlugin
+              /**
+               * The `extractRouterConfig` will extract **only** the route configs
+               * from the router to prevent additional information from being
+               * leaked to the client. The data passed to the client is the same
+               * as if you were to fetch `/api/uploadthing` directly.
+               */
+              routerConfig={extractRouterConfig(ourFileRouter)}
+            />
+            {children}
+            <ToastProvider />
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

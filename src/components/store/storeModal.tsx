@@ -33,8 +33,11 @@ const StoreModal = ({ isOpen, onClose, children }: StoreModalProps) => {
                   className="relative w-full flex items-center overflow-hidden bg-white px-4 pb-8 
                 pt-14 shadow-2xl sm:px-6 sm:pt-10 md:p-6 lg:p-8"
                 >
-                  <div className="absolute top-4 right-4">
-                    <IconButton icon={<X size={20} />} onClick={onClose} />
+                  <div className="absolute group top-4 right-4">
+                    <IconButton
+                      icon={<X className="" size={20} />}
+                      onClick={onClose}
+                    />
                   </div>
                   {children}
                 </div>

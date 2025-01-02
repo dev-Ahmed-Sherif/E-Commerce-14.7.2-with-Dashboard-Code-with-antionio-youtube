@@ -12,14 +12,6 @@ type CurrencyProps = {
 };
 
 const Currency = ({ value }: CurrencyProps) => {
-  const [isMounted, toggleIsMounted] = useToggleState(false);
-
-  useEffect(() => {
-    toggleIsMounted();
-  }, []);
-
-  if (!isMounted) return null;
-
   return (
     <div className="font-semibold">
       {currencyFormatter.format(Number(value))}

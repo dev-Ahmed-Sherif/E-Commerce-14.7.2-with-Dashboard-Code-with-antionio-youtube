@@ -10,6 +10,7 @@ import { Product } from "@/types";
 import { useRouter } from "next/navigation";
 import { MouseEventHandler } from "react";
 import usePreviewModal from "@/hooks/use-preview-modal";
+import useCart from "@/hooks/use-cart";
 
 type ProductCardProps = {
   data: Product;
@@ -18,15 +19,25 @@ type ProductCardProps = {
 const ProductCard = ({ data }: ProductCardProps) => {
   const router = useRouter();
   const previewModal = usePreviewModal();
+  const cart = useCart();
 
   const handleClick = () => {
     router.push(`/store/product/${data.id}`);
   };
 
   const onPreview: MouseEventHandler<HTMLButtonElement> = (event) => {
+    // Prevent the parent from being clicked
     event.stopPropagation();
 
     previewModal.onOpen(data);
+  };
+
+  const onAddToCart: MouseEventHandler<HTMLButtonElement> = (event) => {
+    // Prevent the parent from being clicked
+    event.stopPropagation();
+
+    // Add to cart
+    cart.addItem(data);
   };
 
   return (
@@ -49,7 +60,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
               icon={<Expand size={20} className="text-gray-600" />}
             />
             <IconButton
-              onClick={() => {}}
+              onClick={onAddToCart}
               icon={<ShoppingCart size={20} className="text-gray-600" />}
             />
           </div>
@@ -61,7 +72,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
         <p className="text-sm text-gray-500">{data.category?.name}</p>
       </div>
       {/* Price */}
-      <div className="flex justify-between items-center">
+      <div className="flex text-black justify-between items-center">
         <Currency value={data.price} />
       </div>
     </div>

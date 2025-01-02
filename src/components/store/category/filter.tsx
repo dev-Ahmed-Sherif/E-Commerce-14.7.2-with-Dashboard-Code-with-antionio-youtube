@@ -51,8 +51,8 @@ const Filter = ({ data, name, valueKey }: FilterProps) => {
           <div key={filter.id} className="flex items-center">
             <Button
               className={cn(
-                "p-2 rounded-md text-sm text-gray-800 bg-white border border-gray-300",
-                selectedValue === filter.id ? "bg-black" : "text-white"
+                "p-2 rounded-md text-sm bg-white text-black border border-gray-300 hover:bg-black-100",
+                selectedValue === filter.id ? "bg-black text-white" : ""
               )}
               onClick={() => onClick(filter.id)}
             >
