@@ -28,6 +28,7 @@ const CategoryPage = async ({ params, searchParams }: CategoryPageProps) => {
     categoryId: params.categoryId,
     colorId: searchParams.colorId,
     sizeId: searchParams.sizeId,
+    isFeatured: true,
   });
 
   const sizes = await getSizes();
